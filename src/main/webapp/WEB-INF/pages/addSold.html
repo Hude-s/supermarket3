@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html" ; charset="utf-8"/>
+    <title>添加员工</title>
+    <script src="js/jquery/jquery-3.4.1.js"></script>
+    <link rel="stylesheet" type="text/css" href="layui/dist/css/layui.css"/>
+    <script src="layui/dist/layui.js" type="text/javascript" charset="utf-8"></script>
+</head>
+<body>
+<form class="layui-form" action="" method="post">
+    <div>
+        <input name="soldId" hidden="hidden">
+    </div>
+<!--    <div class="layui-form-item">-->
+<!--        <label class="layui-form-label">销售单号</label>-->
+<!--        <div class="layui-input-block">-->
+<!--            <input type="text" name="soldId" required lay-verify="required" placeholder="请输入销售单号" autocomplete="off"-->
+<!--                   class="layui-input">-->
+<!--        </div>-->
+<!--    </div>-->
+    <div class="layui-form-item">
+        <label class="layui-form-label">商品编号</label>
+        <div class="layui-input-block">
+            <input type="text" name="goodsId" required lay-verify="required" placeholder="请输入商品编号" autocomplete="off"
+                   class="layui-input">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">销售数量</label>
+        <div class="layui-input-block">
+            <input type="number" name="soldNumber" required lay-verify="required" placeholder="请输入销售数量" autocomplete="off"
+                   class="layui-input">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">销售日期</label>
+        <div class="layui-input-block">
+            <input type="datetime-local" name="soldDate" required lay-verify="required" placeholder="请输入销售日期" autocomplete="off"
+                   class="layui-input">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">员工编号</label>
+        <div class="layui-input-block">
+            <input type="number" name="empId" required lay-verify="required" placeholder="请输入员工编号"
+                   autocomplete="off"
+                   class="layui-input">
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <div class="layui-input-block">
+            <button class="layui-btn" lay-submit lay-filter="add">添加</button>
+            <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+        </div>
+    </div>
+</form>
+
+</body>
+<script>
+    layui.use(['form', 'layer'], function () {
+        var form = layui.form;
+        var layer = layui.layer;
+        form.on('submit(add)', function (data) {
+            //前端构造类用于封装数据
+            function Sold() {
+                this.soldId = $("input[name=soldId]").val();
+                this.goodsId = $("input[name=goodsId]").val();
+                this.soldNumber = $("input[name=soldNumber]").val();
+                this.soldDate = $("input[name=soldDate]").val();
+                this.empId= $("input[name=empId]").val();
+
+            }
+
+            var sold = new Sold();
+            $.ajax({
+                url: "addSold",
+                data: {sold: JSON.stringify(sold)},
+                type: "post",
+                dataType: "json",
+                success: function (dataJson) {
+                    if (dataJson.code === 200) {
+                        layer.msg(dataJson.msg);
+                        window.parent.location.reload();//刷新父页面
+                        var index = parent.layer.getFrameIndex(window.name);//获取当前iframe层的索引
+                        parent.layer.close(index);//执行关闭
+                    } else {
+                        layer.msg(dataJson.msg);
+                    }
+                }
+            })
+            return false;
+        })
+    })
+</script>
+</html>

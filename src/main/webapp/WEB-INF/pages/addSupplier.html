@@ -1,0 +1,113 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>供应商添加</title>
+    <script src="js/jquery/jquery-3.4.1.js"></script>
+    <link rel="stylesheet" type="text/css" href="layui/dist/css/layui.css"/>
+    <script src="layui/dist/layui.js" type="text/javascript" charset="utf-8"></script>
+    <script type="text/javascript" src="js/xadmin.js"></script>
+</head>
+<body>
+<form class="layui-form" method="post" lay-filter="edit" id="edit_form">
+    <div>
+        <input name="supplierId" hidden="hidden">
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">供应商名称</label>
+        <div class="layui-input-block">
+            <input type="text" name="supplierName" required lay-verify="required" placeholder="请输入供应商名"
+                   autocomplete="off"
+                   class="layui-input">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">供应商地址</label>
+        <div class="layui-input-block">
+            <input type="text" name="address" required lay-verify="required" placeholder="请输入供应商地址"
+                   autocomplete="off"
+                   class="layui-input">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">商品联系电话</label>
+        <div class="layui-input-block">
+            <input type="number" name="phone" required lay-verify="required" placeholder="请输入供应商联系电话"
+                   autocomplete="off" onblur="check()"
+                   class="layui-input">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">供应商联系人名称</label>
+        <div class="layui-input-block">
+            <input type="text" name="linkName" required lay-verify="required" placeholder="请输入供应商联系人名称"
+                   autocomplete="off"
+                   class="layui-input">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <div class="layui-input-block">
+            <button class="layui-btn" lay-submit lay-filter="confirm">确认提交</button>
+            <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+        </div>
+    </div>
+</form>
+
+</body>
+
+<script>
+    //添加数据
+    layui.use(['form', 'layer'], function () {
+        var form = layui.form;
+        var layer = layui.layer;
+        form.on('submit(confirm)', function (data) {
+            //前端构造类用于封装数据
+            function Supplier() {
+                this.supplierId = $("input[name=supplierId]").val();
+                this.supplierName = $("input[name=supplierName]").val();
+                this.address = $("input[name=address]").val();
+                this.phone = $("input[name=phone]").val();
+                this.linkName = $("input[name=linkName]").val();
+            }
+
+            var supplier = new Supplier();
+            $.ajax({
+                url: "addSupplier",
+                data: {supplier: JSON.stringify(supplier)},
+                type: "post",
+                dataType: "json",
+                success: function (dataJson) {
+                    if (dataJson.code === 200) {
+                        layer.msg(dataJson.msg);
+                        window.parent.location.reload();//刷新父页面
+                        var index = parent.layer.getFrameIndex(window.name);//获取当前iframe层的索引
+                        parent.layer.close(index);//执行关闭
+                    } else {
+                        layer.msg(dataJson.msg);
+                    }
+                }
+            })
+            return false;
+        })
+
+    })
+    //校验手机号
+    function check() {
+        var reg = new RegExp("^1[3|4|5|7|8][0-9]{9}$");
+        var value = $('input[name=phone]').val();
+        var result = reg.test(value);
+        if (result !== true) {
+            layui.use('layer',function () {
+                var layer=layui.layer;
+                layer.msg("手机号码格式错误！");
+                $('input[name=phone]').val('');
+            })
+            return false;
+        }
+    }
+
+
+
+</script>
+
+</html>

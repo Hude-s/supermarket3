@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>添加用户</title>
+    <script src="js/jquery/jquery-3.4.1.js"></script>
+    <link rel="stylesheet" type="text/css" href="layui/dist/css/layui.css"/>
+    <script src="layui/dist/layui.js" type="text/javascript" charset="utf-8"></script>
+    <script type="text/javascript" src="js/xadmin.js"></script>
+</head>
+<body>
+    <form class="layui-form" method="post" lay-filter="edit" id="edit_form">
+        <div>
+            <input name="userId" hidden="hidden">
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">用户名</label>
+            <div class="layui-input-block">
+                <input type="text" name="userName" required lay-verify="required" placeholder="请输入用户名"
+                       autocomplete="off"
+                       class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">密码</label>
+            <div class="layui-input-block">
+                <input type="password" name="password" required lay-verify="required" placeholder="请输入用户密码"
+                       autocomplete="off"
+                       class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">状态</label>
+            <div class="layui-input-block">
+                <input type="radio" name="state" value="1" title="激活" checked>
+                <input type="radio" name="state" value="0" title="冻结">
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <div class="layui-input-block">
+                <button class="layui-btn" lay-submit lay-filter="confirm">确认提交</button>
+                <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+            </div>
+        </div>
+    </form>
+</body>
+
+<script>
+    //添加数据
+    layui.use(['form', 'layer'], function () {
+        var form = layui.form;
+        var layer = layui.layer;
+        form.on('submit(confirm)', function (data) {
+            //前端构造类用于封装数据
+            function User() {
+                this.userId = $("input[name=userId]").val();
+                this.userName = $("input[name=userName]").val();
+                this.password = $("input[name=password]").val();
+                this.state = $("input[name=state]:checked").val();
+            }
+
+            var user = new User();
+            $.ajax({
+                url: "addUser",
+                data: {user: JSON.stringify(user)},
+                type: "post",
+                dataType: "json",
+                success: function (data) {
+                    if (data.code === 200) {
+                        layer.msg(data.msg);
+                        window.parent.location.reload();//刷新父页面
+                        var index = parent.layer.getFrameIndex(window.name);//获取当前iframe层的索引
+                        parent.layer.close(index);//执行关闭
+                    } else {
+                        layer.msg(data.msg);
+                    }
+                }
+            })
+            return false;
+        })
+
+    })
+</script>
+</html>

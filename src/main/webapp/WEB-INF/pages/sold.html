@@ -1,0 +1,253 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html" ; charset="utf-8"/>
+    <title>销售管理</title>
+    <script src="js/jquery/jquery-3.4.1.js"></script>
+    <link rel="stylesheet" type="text/css" href="layui/dist/css/layui.css"/>
+    <script src="layui/dist/layui.js" type="text/javascript" charset="utf-8"></script>
+    <script type="text/javascript" src="js/xadmin.js"></script>
+    <!--    <script type="text/javascript" src="../../js/employee.js"></script>-->
+</head>
+<body>
+<div class="layui-row" style="text-align: center;">
+    <div class="layui-form layui-col-md12 x-so">
+        <input type="text" name="keyword" id="searchReload" placeholder="请输入销售单号" autocomplete="off"
+               style="height: 34px;width: 300px;margin-top: 30px;">
+        <button class="layui-btn" id="searchBtn" lay-submit="" lay-filter="sreach">
+            <i class="layui-icon">&#xe615;</i>
+        </button>
+    </div>
+</div>
+
+<table class="layui-table" id="soldList" lay-filter="solds"></table>
+
+
+<script type="text/html" id="toolbarDemo">
+    <div class="layui-btn-container">
+        <button class="layui-btn layui-btn-sm" lay-event="add_sold">添加</button>
+        <button class="layui-btn layui-btn-danger layui-btn-sm" lay-event="del_solds_batch">批量删除</button>
+    </div>
+</script>
+
+<script type="text/html" id="barDemo">
+    <a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
+    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+</script>
+
+
+<div id="sold_edit_form" style="display: none; padding: 10px ">
+    <form class="layui-form" method="post" lay-filter="sold_edit" id="edit_form">
+        <div>
+            <input name="soldId" hidden="hidden">
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">销售单号</label>
+            <div class="layui-input-block">
+                <input type="text" name="soldId" required lay-verify="required" placeholder="请输入销售单号"
+                       autocomplete="off"
+                       class="layui-input" disabled="true">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">商品编号</label>
+            <div class="layui-input-block">
+                <input type="text" name="goodsId" required lay-verify="required" placeholder="请输入商品编号"
+                       autocomplete="off"
+                       class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">销售数量</label>
+            <div class="layui-input-block">
+                <input type="number" name="soldNumber" required lay-verify="required" placeholder="请输入销售数量"
+                       autocomplete="off"
+                       class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">销售日期</label>
+            <div class="layui-input-block">
+                <input type="datetime-local" name="soldDate" required lay-verify="required" placeholder="请输入销售日期"
+                       autocomplete="off"
+                       class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">员工编号</label>
+            <div class="layui-input-block">
+                <input type="number" name="empId" required lay-verify="required" placeholder="请输入员工编号"
+                       autocomplete="off"
+                       class="layui-input">
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <div class="layui-input-block">
+                <button class="layui-btn" lay-submit lay-filter="modifySold">确认修改</button>
+                <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+            </div>
+        </div>
+    </form>
+</div>
+
+</body>
+
+
+<script>
+    layui.use(['table', 'layer'], function () {
+        var table = layui.table;
+        var layer = layui.layer;
+        //显示数据，已完成
+        var tableIns = table.render({
+            elem: '#soldList',
+            height: 521,
+            url: 'soldList', //数据接口
+            page: true,//开启分页
+            limit: 10,
+            limits: [5, 10, 15, 20, 25, 30],
+            toolbar: "#toolbarDemo",
+            cols: [[ //表头
+                {type: 'checkbox',width: 80, fixed: 'left', align:'center'},
+                {field: 'soldId', title: '销售单号', sort: true, align:'center',style:"font-size:15px"},
+                {field: 'goodsId', title: '商品编号',  sort: true, align:'center',style:"font-size:15px"},
+                {field: 'soldNumber', title: '销售数量',  sort: true, align:'center',style:"font-size:15px",},
+                {field: 'soldDate', title: '销售日期', sort: true, align:'center',style:"font-size:15px"},
+                {field: 'empId', title: '员工编号', sort: true,align:'center',style:"font-size:15px"},
+                {title: '操作', width: 120, toolbar: "#barDemo", align:'center',style:"font-size:15px"}
+            ]],
+            where: {},
+        });
+
+
+        table.on("toolbar(solds)", function (obj) {
+            // 添加员工，已完成
+            if (obj.event === 'add_sold') {
+                layer.open({
+                    title: "添加员工",
+                    type: 2,
+                    area: ['800px', '500px'],
+                    maxmin: true,
+                    content: "to_addSold",
+                })
+            }
+            //批量删除，已完成
+            else if (obj.event === 'del_solds_batch') {
+                layer.confirm('真的删除这些数据吗?', function (index) {
+                    var checkStatus = table.checkStatus('soldList'); //idTest 即为基础参数 id 对应的值
+                    var soldIds = "";
+                    $.each(checkStatus.data, function (i, v) {
+                        console.log(v.soldId);
+                        soldIds = soldIds + v.soldId + ",";
+                    })
+                    soldIds = soldIds.substring(0, soldIds.length - 1);
+                    console.log(soldIds);
+                    $.ajax({
+                        url: "deleteSoldBatch",
+                        dataType: "json",
+                        data: {soldIds: soldIds},
+                        type: "post",
+                        success: function (dataJson) {
+                            if (dataJson.code === 200) {
+                                window.location.reload();
+                            } else {
+                                layer.msg(dataJson.msg);
+                            }
+                        }
+                    })
+                })
+            }
+        })
+
+        //监听行工具栏，编辑和删除单个数据，已完成
+        table.on('tool(solds)', function (obj) {
+            var form = layui.form;//注意，layui定义方式
+            //编辑员工,数据回显，不通过查询数据库，直接在前端获取数据进行显示，显示form表单的，回显前端操作数据的js代码
+            if (obj.event === 'edit') {
+                var data = obj.data;
+                edit = layer.open({
+                    title: "编辑用户",
+                    type: 1,
+                    area: ['800px', '500px'],
+                    maxmin: true,
+                    content: layui.$("#sold_edit_form"),
+                })
+                console.log(data);
+                form.val("sold_edit", {
+                    "soldId": data.soldId,
+                    "goodsId": data.goodsId,
+                    "soldNumber": data.soldNumber,
+                    "soldDate": data.soldDate,
+                    "empId": data.empId,
+
+                });
+
+            } else if (obj.event === 'del') {//删除单个员工数据的js代码
+                layer.confirm('真的删除行么', function (index) {
+                    $.ajax({
+                        url: "deleteSold",
+                        data: {soldId: obj.data.soldId},
+                        dataType: "json",
+                        type: "post",
+                        success: function (dataJson) {
+                            if (dataJson.code === 200) {
+                                window.location.reload();
+                            } else {
+                                layer.msg(dataJson.msg);
+                            }
+                        }
+                    })
+                });
+            }
+        })
+
+        $("#searchBtn").on('click', function () {
+            var val = $("#searchReload").val();
+            console.log(val);
+            // 重载数据
+            tableIns.reload({
+                where: {soldId: val},
+                page: {curr: 1}  //重新从第 1 页开始
+            });
+        })
+    });
+</script>
+
+<script>
+    //更新员工的js代码，已完成
+    layui.use(['form', 'layer'], function () {
+        var form = layui.form;
+        var layer = layui.layer;
+
+        form.on('submit(modifySold)', function (data) {
+            //前端构造类用于封装数据
+            function Sold() {
+                this.soldId = $("input[name=soldId]").val();
+                this.goodsId = $("input[name=goodsId]").val();
+                this.soldNumber = $("input[name=soldNumber]").val();
+                this.soldDate = $("input[name=soldDate]").val();
+                this.empId = $("input[name=empId]").val()
+            }
+
+            var sold = new Sold();
+            $.ajax({
+                url: "updateSold",
+                data: {sold: JSON.stringify(sold)},
+                type: "post",
+                dataType: "json",
+                success: function (dataJson) {
+                    if (dataJson.code === 200) {
+                        layer.msg(dataJson.msg);
+                        location.reload();//刷新父页面
+                        var index = parent.layer.getFrameIndex(window.name);//获取当前iframe层的索引
+                        parent.layer.close(index);//执行关闭
+                    } else {
+                        layer.msg(dataJson.msg);
+                    }
+                }
+            })
+            return false;
+        })
+    })
+</script>
+</html>

@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <!--    <script src="https://code.jquery.com/jquery-2.0.0.min.js"></script>-->
+    <script src="js/jquery/jquery-3.4.1.js"></script>
+    <link rel="stylesheet" type="text/css" href="layui/dist/css/layui.css"/>
+    <script src="layui/dist/layui.js"></script>
+    <title>首页</title>
+    <style>
+        #selected a {
+            font-size: 20px;
+        }
+
+        #selected li {
+            margin-top: 30px;
+        }
+
+        #lists {
+            height: 50px;
+            width: 200px;
+            font-size: 20px;
+            padding-top: 18px;
+            padding-left: 20px;
+            background: #01AAED;
+        }
+
+        #username1{
+            color: #01AAED;
+            font-size: 20px;
+            font-family: "宋体", serif;
+        }
+
+
+    </style>
+</head>
+<body class="layui-layout-body">
+<div class="layui-layout layui-layout-admin">
+    <div class="layui-header">
+        <div class="layui-logo">
+            <h2><b>超市后台管理系统</b></h2>
+        </div>
+
+        <!-- 头部区域（可配合layui已有的水平导航） -->
+        <ul class="layui-nav layui-layout-right">
+
+            <li class="layui-nav-item">
+                <a href="#">
+                    <img src="./img/背景图.jpeg" class="layui-nav-img">
+                </a>
+            </li>
+            <li class="layui-nav-item">
+                <a id="loginName"></a>
+            </li>
+            <li class="layui-nav-item">
+                <a href="loginOut">退出</a>
+            </li>
+        </ul>
+    </div>
+
+    <div class="layui-side layui-bg-black">
+        <div class="layui-side-scroll" id="selected">
+            <!-- 左侧导航区域（可配合layui已有的垂直导航） -->
+            <div id="lists">功能列表</div>
+            <ul class="layui-nav layui-nav-tree" lay-filter="test">
+
+                <li class="layui-nav-item"><a class="part1" href="#">供应商管理</a></li>
+                <li class="layui-nav-item"><a class="part2" href="#">商品管理</a></li>
+                <li class="layui-nav-item"><a class="part3" href="#">员工管理</a></li>
+                <li class="layui-nav-item"><a class="part4" href="#">销售管理</a></li>
+                <li class="layui-nav-item"><a class="part5" href="#">用户管理</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="layui-body" style="padding: 0px;">
+        <!-- 内容主体区域 -->
+        <iframe src="./welcome1" style="width: 100%;height: 107%;" scrolling="atuo"></iframe>
+
+    </div>
+</div>
+
+<div class="layui-footer">
+    <!-- 底部固定区域 -->
+    @www.yingdeNB.com
+</div>
+</div>
+</body>
+<script>
+    $(function () {
+        $('.part1').click(function () {
+
+            $('iframe').attr("src", "./supplier");
+
+        });
+        $('.part2').click(function () {
+
+            $('iframe').attr("src", "./goods");
+
+        });
+        $('.part3').click(function () {
+
+            $('iframe').attr("src", "./employee");
+
+        });
+        $('.part4').click(function () {
+
+            $('iframe').attr("src", "./sold");
+
+        });
+        $('.part5').click(function () {
+
+            $('iframe').attr("src", "./user");
+
+        })
+    })
+</script>
+
+
+<script>
+    //获取参数
+    function GetQueryString(name) {
+        var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i");
+        var r = window.location.search.substr(1).match(reg);
+        if (r != null) return decodeURI(r[2]);
+        return null;
+    }
+    var userName = GetQueryString("userName");//调用
+    $('#loginName').text(userName);
+    // console.log("666" + userName);
+</script>
+
+<!-- <script src="../src/layui.js"></script>
+<script>
+    //JavaScript代码区域
+    layui.use('layer', function() {
+        var layer = layui.layer;
+
+    });
+</script> -->
+
+
+</html>

@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <script src="js/jquery/jquery-3.4.1.js"></script>
+    <script src="js/jq-slideVerify.js" type="text/javascript" charset="utf-8"></script>
+    <link rel="stylesheet" type="text/css" href="layui/dist/css/layui.css"/>
+    <link rel="stylesheet" type="text/css" href="css/login.css"/>
+    <script src="layui/dist/layui.js" type="text/javascript" charset="utf-8"></script>
+    <title>登录页面</title>
+</head>
+<body>
+<div id="container">
+    <h2>超市后台管理系统</h2><br><br>
+    <form method="post" class="layui-form">
+        <div class="layui-row">
+            <label class="layui-col-md2 layui-col-xs2" style="padding: 10px"><b>用户名:</b></label>
+            <div class="layui-col-md8 layui-col-xs8 ">
+                <input type="text" name="username" placeholder="请输入用户名" autocomplete="off"
+                       class="layui-input" >
+            </div>
+        </div>
+        <div class="layui-row" style="margin-top: 35px;margin-bottom: 35px">
+            <label class="layui-col-md2 layui-col-xs2" style="padding: 10px"><b>密码:</b></label>
+            <div class="layui-col-md8 layui-col-xs8 ">
+                <input type="password" name="password" placeholder="请输入密码" autocomplete="off"
+                       class="layui-input" >
+            </div>
+        </div>
+
+        <div class="selfDiv" style="width: 300px;margin: 0 auto;">
+            <div class="verify-wrap" id="verify-wrap2"></div>
+        </div>
+<!--        <div class="layui-row" style="margin-top: 15px">-->
+<!--            <div class="layui-col-md2" style="padding: 10px">-->
+<!--                <b>验证码:</b>-->
+<!--            </div>-->
+<!--            <div class="layui-col-md3 ">-->
+<!--                <input type="text" name="identifyCode" placeholder="请输入验证码" autocomplete="off"-->
+<!--                       class="layui-input">-->
+<!--            </div>-->
+<!--            <div class="layui-col-md5">-->
+<!--                <a href="#"><img class="layui-col-md8" style="height: 50px;margin-left: 30px" src="../../img/背景1.jpg"></a>-->
+<!--            </div>-->
+<!--        </div>-->
+
+        <div class="layui-form-item">
+            <div class="layui-input-block" style="margin-left: 10px; margin-top: 30px">
+                <button class="layui-btn" lay-submit lay-filter="login" id="getState2">登录</button>
+                <button type="reset" class="layui-btn layui-btn-primary" id="reset1">重置</button>
+            </div>
+        </div>
+<!--        <div class="layui-row" style="margin-top: 15px">-->
+<!--            <div class="layui-col-md9">-->
+<!--                &nbsp;-->
+<!--            </div>-->
+<!--            <div class="layui-col-md3" style="margin-right: 0px;">-->
+<!--                <a href="#" style="color: red" id="forgetPassword"></a>-->
+<!--            </div>-->
+<!--        </div>-->
+    </form>
+</div>
+</body>
+<script>
+    // 滑块验证
+    var SlideVerifyPlug = window.slideVerifyPlug;
+    var slideVerify2 = new SlideVerifyPlug('#verify-wrap2',{
+        initText:'请按住滑块',
+        sucessText:'验证通过',
+    });
+    // 登录按钮
+    layui.use(['form', 'layer'], function () {
+        var form = layui.form;
+        var layer = layui.layer;
+        form.on('submit(login)', function (data) {
+            //提交数据 通过ajax
+            $.ajax({
+                url: "login",
+                dataType: "json",
+                type: "post",
+                data: data.field,
+                success: function (dataJson) {
+                    if (slideVerify2.slideFinishState === true&&dataJson.code === 200) {
+                        window.location.href = "toWelcome?userName="+dataJson.userName;
+                        // window.location.href="网吧.html?userId=1"
+                        // localStorage.setItem("userName", dataJson.userName);
+                        // Console.log(dataJson.userName);
+                        // layer.alert(dataJson.userName);
+                    } else {
+                            if (slideVerify2.slideFinishState === true&&dataJson.code !== 200) {
+                                slideVerify2.resetVerify();
+                                layer.msg(dataJson.msg);
+                                $("#password").val('');
+                            }else if(slideVerify2.slideFinishState === false){
+                                    layer.msg("验证失败！请重新验证");
+                            }
+                    }
+                }
+            })
+            return false;
+        })
+    });
+
+        $("#reset1").on('click',function(){
+            slideVerify2.resetVerify();
+        });
+</script>
+<script type="text/javascript">
+    var loginUser = document.getElementById("loginUser");
+
+</script>
+</html>

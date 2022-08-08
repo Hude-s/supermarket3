@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd">
+
+    <!--    包含spring需要管理的bean对象-->
+    <context:component-scan base-package="com.sgxy.supermarket" use-default-filters="false">
+        <context:include-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+    </context:component-scan>
+
+    <!--         配置Thymeleaf视图解析器 -->
+    <bean id="viewResolver" class="org.thymeleaf.spring5.view.ThymeleafViewResolver">
+        <property name="order" value="0"/>
+        <property name="characterEncoding" value="UTF-8"/>
+        <property name="templateEngine">
+            <bean class="org.thymeleaf.spring5.SpringTemplateEngine">
+                <property name="templateResolver">
+                    <bean class="org.thymeleaf.spring5.templateresolver.SpringResourceTemplateResolver">
+                        <!-- 视图前缀 最后的/要注意 -->
+                        <property name="prefix" value="/WEB-INF/pages/"/>
+                        <!-- 视图后缀 -->
+                        <property name="suffix" value=".html"/>
+                        <property name="templateMode" value="HTML5"/>
+                        <property name="characterEncoding" value="UTF-8"/>
+                        <!-- 禁用缓存 -->
+                        <property name="cacheable" value="false"/>
+                    </bean>
+                </property>
+            </bean>
+        </property>
+    </bean>
+
+    <mvc:default-servlet-handler/>
+    <mvc:resources mapping="/js/**" location="/js/"/>
+    <mvc:resources mapping="/css/**" location="/css/"/>
+    <mvc:resources mapping="/img/**" location="/img/"/>
+    <mvc:resources mapping="/layui/**" location="/layui/"/>
+
+    <mvc:annotation-driven/>
+
+    <mvc:interceptors>
+        <mvc:interceptor>
+            <!-- 包括这个请求下面的所有的请求 -->
+            <!--            <mvc:mapping path="/html/**"/>-->
+            <!--                        <mvc:mapping path="/pages/**"/>-->
+
+
+            <mvc:mapping path="/**/"/>
+            <!--            <mvc:mapping path="/toLogin"/>-->
+            <!--            <mvc:exclude-mapping path="/toLogin"/>-->
+            <mvc:exclude-mapping path="/**/*error*"/>
+            <mvc:exclude-mapping path="/**/fonts/*"/>
+            <mvc:exclude-mapping path="/**/*.css"/>
+            <mvc:exclude-mapping path="/**/*.js"/>
+            <mvc:exclude-mapping path="/**/*.png"/>
+            <mvc:exclude-mapping path="/**/*.gif"/>
+            <mvc:exclude-mapping path="/**/*.jpg"/>
+            <mvc:exclude-mapping path="/**/*.jpeg"/>
+            <mvc:exclude-mapping path="/**/*.JPG"/>
+            <mvc:exclude-mapping path="/**/*login*"/>
+            <mvc:exclude-mapping path="/**/*Login*"/>
+
+            <!--登录拦截-->
+            <bean class="com.sgxy.supermarket.interceptor.LoginInterceptor"/>
+        </mvc:interceptor>
+    </mvc:interceptors>
+
+</beans>

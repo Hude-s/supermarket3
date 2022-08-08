@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sgxy.supermarket.mapper.SupplierMapper">
+    <resultMap id="supplier" type="Supplier">
+        <result property="supplierId" column="supplierId"></result>
+        <result property="supplierName" column="supplierName"></result>
+        <result property="address" column="address"></result>
+        <result property="phone" column="phone"></result>
+        <result property="linkName" column="linkName"></result>
+    </resultMap>
+
+    <select id="querySupplierByName" resultType="supplier">
+        select *
+        from supplier
+        <where>
+            <if test="supplierName != null and supplierName != '' ">
+                <bind name="supplierName" value="'%' + supplierName + '%'"/>
+                supplier_name like #{supplierName}
+            </if>
+        </where>
+    </select>
+
+    <insert id="addSupplier" parameterType="supplier">
+        insert into supplier(supplier_name, address, phone, link_name)
+            value (#{supplierName},#{address},#{phone},#{linkName})
+    </insert>
+
+    <update id="updateSupplier" parameterType="Supplier">
+        update supplier
+        <set>
+            <if test="supplierName != '' and supplierName != null">
+                supplier_name = #{supplierName},
+            </if>
+            <if test="address != '' and address != null">
+                address = #{address},
+            </if>
+            <if test="phone != '' and phone != null">
+                phone =#{phone},
+            </if>
+            <if test="linkName != '' and linkName != null">
+                link_name = #{linkName}
+            </if>
+        </set>
+        where supplier_id = #{supplierId}
+    </update>
+
+    <delete id="deleteSupplier" parameterType="Integer">
+        delete
+        from supplier
+        where supplier_id = #{supplierId}
+    </delete>
+</mapper>

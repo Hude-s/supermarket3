@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:aop="http://www.springframework.org/schema/aop" xmlns:mvc="http://www.springframework.org/schema/tool"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/context
+       http://www.springframework.org/schema/context/spring-context.xsd
+       http://www.springframework.org/schema/cache
+       http://www.springframework.org/schema/cache/spring-cache.xsd
+       http://www.springframework.org/schema/tx
+	   http://www.springframework.org/schema/tx/spring-tx.xsd
+       http://www.springframework.org/schema/aop
+       http://www.springframework.org/schema/aop/spring-aop.xsd
+       http://www.springframework.org/schema/tool http://www.springframework.org/schema/tool/spring-tool.xsd">
+
+    <context:component-scan base-package="com.sgxy.supermarket">
+        <context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+    </context:component-scan>
+
+
+    <context:property-placeholder location="classpath:db.properties"/>
+
+    <bean class="com.alibaba.druid.pool.DruidDataSource" id="dataSource">
+        <property name="driverClassName" value="${jdbc.driver}"/>
+        <property name="url" value="${jdbc.url}"/>
+        <property name="username" value="${jdbc.username}"/>
+        <property name="password" value="${jdbc.password}"/>
+    </bean>
+
+    <bean class="org.mybatis.spring.SqlSessionFactoryBean" id="sqlSessionFactoryBean">
+        <property name="dataSource" ref="dataSource"/>
+        <property name="typeAliasesPackage" value="com.sgxy.supermarket.entity"/>
+        <property name="configuration">
+            <bean class="org.apache.ibatis.session.Configuration">
+                <property name="mapUnderscoreToCamelCase" value="true"/>
+                <property name="logImpl" value="org.apache.ibatis.logging.stdout.StdOutImpl"/>
+            </bean>
+        </property>
+
+        <property name="plugins">
+            <array>
+                <bean class="com.github.pagehelper.PageInterceptor">
+                    <property name="properties">
+                        <props>
+                            <prop key="helperDialect">mysql</prop>
+                            <prop key="reasonable">true</prop>
+                        </props>
+                    </property>
+                </bean>
+            </array>
+        </property>
+    </bean>
+
+
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer" id="mapperScannerConfigurer">
+        <property name="basePackage" value="com.sgxy.supermarket.mapper"/>
+    </bean>
+
+    <!--配置Spring框架声明式事务管理-->
+    <!--配置事务管理器,基于aop切面编程的实现-->
+    <bean class="org.springframework.jdbc.datasource.DataSourceTransactionManager" id="transactionManager">
+        <property name="dataSource" ref="dataSource"></property>
+    </bean>
+
+<!--    <tx:annotation-driven transaction-manager="transactionManager"></tx:annotation-driven>-->
+    <!--    定义事务管理的通知方法-->
+    <tx:advice transaction-manager="transactionManager" id="interceptor">
+        <tx:attributes>
+            <tx:method name="*" timeout="3" isolation="READ_COMMITTED"></tx:method>
+        </tx:attributes>
+    </tx:advice>
+
+    <!--配置通知方法的切入点-->
+    <aop:config>
+        <aop:pointcut id="myPoint" expression="execution(* com.sgxy.supermarket.service.*.*(..))"/>
+        <aop:advisor advice-ref="interceptor" pointcut-ref="myPoint"></aop:advisor>
+    </aop:config>
+
+</beans>

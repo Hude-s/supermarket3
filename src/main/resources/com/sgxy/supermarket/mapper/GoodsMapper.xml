@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sgxy.supermarket.mapper.GoodsMapper">
+    <resultMap id="goods" type="Goods">
+        <result property="goodsId" column="goodsId"></result>
+        <result property="goodsName" column="goodsName"></result>
+        <result property="goodsUnit" column="goodsUnit"></result>
+        <result property="goodsPrice" column="goodsPrice"></result>
+        <result property="number" column="number"></result>
+        <result property="productionDate" column="productionDate"></result>
+    </resultMap>
+
+    <select id="queryGoodsByName" resultType="goods">
+        select *
+        from goods
+        <where>
+            <if test="goodsName != null and goodsName != '' ">
+                <bind name="goodsName" value="'%' + goodsName + '%'"/>
+                 goods_name like #{goodsName}
+            </if>
+        </where>
+    </select>
+
+    <insert id="addGoods" parameterType="Goods">
+        insert into goods(goods_name, goods_unit, goods_price, number, production_date)
+            value (#{goodsName},#{goodsUnit},#{goodsPrice},#{number},#{productionDate})
+    </insert>
+
+    <update id="updateGoods" parameterType="Goods">
+        update goods as g
+        <set>
+            <if test="goodsName!='' and goodsName!=null">
+                g.goods_name = #{goodsName},
+            </if>
+            <if test="goodsUnit != '' and goodsUnit != null">
+                g.goods_unit =#{goodsUnit},
+            </if>
+            <if test="goodsPrice != '' and goodsPrice != null">
+                g.goods_price =#{goodsPrice},
+            </if>
+            <if test="number != '' and number != null">
+                g.number = #{number},
+            </if>
+            <if test="productionDate != '' and productionDate != null">
+                g.production_date = #{productionDate}
+            </if>
+        </set>
+        where g.goods_id = #{goodsId}
+    </update>
+
+    <delete id="deleteGoods" parameterType="Integer">
+        delete
+        from goods
+        where goods_id = #{goodsId}
+    </delete>
+</mapper>

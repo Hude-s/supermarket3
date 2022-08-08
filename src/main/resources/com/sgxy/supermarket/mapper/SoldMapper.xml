@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sgxy.supermarket.mapper.SoldMapper">
+    <resultMap id="Sold" type="Sold">
+        <result property="soldId" column="soldId"></result>
+        <result property="goodsId" column="goodsId"></result>
+        <result property="soldNumber" column="soldNumber"></result>
+        <result property="soldDate" column="soldDate"></result>
+        <result property="empId" column="empId"></result>
+    </resultMap>
+
+    <select id="querySoldById" resultType="sold">
+        select *
+        from sold
+        <where>
+            <if test="soldId != null and soldId != ''">
+                <bind name="soldId" value="'%' + soldId + '%'"/>
+                and sold_id like #{soldId}
+            </if>
+        </where>
+    </select>
+
+    <insert id="addSold" parameterType="Sold">
+        insert into sold(goods_id, sold_number, sold_date, emp_id)
+            value(#{goodsId},#{soldNumber},#{soldDate},#{empId})
+    </insert>
+
+    <update id="updateSold" parameterType="Sold">
+        update sold
+        <set>
+            <if test="soldId != '' and soldId != null">
+                sold_id = #{soldId},
+            </if>
+            <if test="goodsId != null and goodsId != ''">
+                goods_id = #{goodsId},
+            </if>
+            <if test="soldNumber != null and soldNumber != ''">
+                sold_number = #{soldNumber},
+            </if>
+            <if test="soldDate != null and soldDate != ''">
+                sold_date = #{soldDate},
+            </if>
+            <if test="empId != null and empId != ''">
+                emp_id = #{empId}
+            </if>
+        </set>
+        where sold_id = #{soldId}
+    </update>
+
+    <delete id="deleteSold" parameterType="Integer">
+        delete
+        from sold
+        where sold_id = #{soldId}
+    </delete>
+</mapper>

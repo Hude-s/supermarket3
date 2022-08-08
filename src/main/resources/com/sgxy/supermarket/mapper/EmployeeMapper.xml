@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sgxy.supermarket.mapper.EmployeeMapper">
+    <resultMap id="employee" type="Employee">
+        <result property="empId" column="empId"></result>
+        <result property="empName" column="empName"></result>
+        <result property="empGender" column="empGender"></result>
+        <result property="empAge" column="empAge"></result>
+        <result property="empPost" column="empPost"></result>
+        <result property="empPhone" column="empPhone"></result>
+        <result property="empSalary" column="empSalary"></result>
+    </resultMap>
+
+    <select id="queryEmployeeByName" resultType="employee">
+        select *
+        from employee
+        <where>
+            <if test="empName != null and empName != ''">
+                <bind name="empName" value="'%' + empName + '%'"/>
+                and emp_Name like #{empName}
+            </if>
+        </where>
+    </select>
+
+    <insert id="addEmployee" parameterType="Employee">
+        insert into employee value(null,#{empName},#{empGender},#{empAge},#{empPost},#{empPhone},#{empSalary})
+    </insert>
+
+    <update id="updateEmployee" parameterType="Employee">
+        update employee
+        <set>
+            <if test="empName != '' and empName != null">
+                 emp_name = #{empName},
+            </if>
+            <if test="empGender != null and empGender != ''">
+                emp_gender = #{empGender},
+            </if>
+            <if test="empAge != null and empAge != ''">
+                emp_age = #{empAge},
+            </if>
+            <if test="empPost != null and empPost != ''">
+                emp_post = #{empPost},
+            </if>
+            <if test="empPhone != null and empPhone != ''">
+                emp_phone = #{empPhone},
+            </if>
+            <if test="empSalary != null and empSalary != ''">
+                emp_salary = #{empSalary}
+            </if>
+        </set>
+        where emp_id = #{empId}
+    </update>
+
+    <delete id="deleteEmployee" parameterType="Integer">
+        delete
+        from employee
+        where emp_id = #{empId}
+    </delete>
+</mapper>
